@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - IT Service Tracker{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md mx-auto">
+    <!-- Header Card -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg mb-6">
+        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ title }}</h1>
+      <p class="text-gray-600">{% if object %}Update user details{% else %}Register a new team member{% endif %}</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card bg-white rounded-2xl shadow-xl p-8">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Error Messages -->
+        {% if form.errors %}
+          <div class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              {% if form.non_field_errors %}
+                {{ form.non_field_errors }}
+              {% else %}
+                Please correct the errors below.
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Form Fields (same as your existing form) -->
+        <div class="space-y-2">
+          <label for="id_username" class="block text-sm font-semibold text-gray-700">Username</label>
+          <input id="id_username" name="username" type="text" required value="{{ form.username.value|default:'' }}" 
+                 class="form-input block w-full rounded-xl border-gray-300 shadow-sm px-4 py-3 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                 placeholder="john.doe" />
+          {% if form.username.errors %}
+            <p class="text-sm text-red-600">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Include all other form fields from your existing form -->
+        <!-- Email, First Name, Last Name, Department, Password fields -->
+        <!-- ... (copy the rest of your form fields from the previous example) ... -->
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary w-full inline-flex items-center justify-center rounded-xl px-6 py-4 font-semibold text-white shadow-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          {% if object %}Update User{% else %}Create User{% endif %}
+        </button>
+      </form>
+
+      <!-- Footer Links -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <a href="{% url 'requests_app:user_list' %}" class="text-sm text-gray-600 hover:text-gray-900 flex items-center transition-colors duration-200">
+          <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to User List
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

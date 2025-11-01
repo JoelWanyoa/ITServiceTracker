@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login · IT Service Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-dark: #1e3a8a;
+      --danger: #dc2626;
+    }
+    
+    body {
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    
+    .card {
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .form-input {
+      transition: all 0.2s ease;
+    }
+    
+    .form-input:focus {
+      border-color: var(--primary);
+      ring-color: var(--primary);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-md mx-auto">
+    <div class="card bg-white rounded-xl shadow-sm p-8">
+      <div class="text-center">
+        <div class="mx-auto h-16 w-16 rounded-xl bg-blue-600 text-white flex items-center justify-center font-semibold mb-4">IT</div>
+        <h1 class="text-2xl font-bold text-gray-900">Login</h1>
+        <p class="mt-2 text-sm text-gray-600">Internal Access Only</p>
+      </div>
+
+      <form method="post" class="mt-8 space-y-6">
+        {% csrf_token %}
+        {% if form.errors %}
+          <div class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm">
+            {% if form.non_field_errors %}
+              {{ form.non_field_errors }}
+            {% else %}
+              Please correct the errors below.
+            {% endif %}
+          </div>
+        {% endif %}
+        
+        <div>
+          <label for="id_username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+          <input id="id_username" name="username" type="text" required class="form-input block w-full rounded-xl border-gray-300 shadow-sm px-4 py-3" />
+          {% if form.username.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+          <input id="id_password" name="password" type="password" required class="form-input block w-full rounded-xl border-gray-300 shadow-sm px-4 py-3" />
+          {% if form.password.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <input type="hidden" name="next" value="{{ next|default:'/' }}" />
+        <button type="submit" class="btn-primary w-full inline-flex items-center justify-center rounded-xl px-4 py-3 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">Login</button>
+      </form>
+
+      <p class="mt-8 text-center text-sm text-gray-600">
+        Don't have an account? <a href="{% url 'requests_app:signup' %}" class="font-medium text-blue-600 hover:text-blue-500">Sign Up</a>
+      </p>
+
+      <p class="mt-6 text-center text-xs text-gray-500">© <span id="year"></span> Your Organization · Internal Access Only</p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

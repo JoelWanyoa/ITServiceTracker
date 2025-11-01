@@ -1,0 +1,15 @@
+/* Minor custom overrides for IT Service Tracker */
+
+/* Improve focus visibility on custom elements */
+.focus-visible-ring:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Utility: smooth card transitions */
+.card-hover:hover {
+  transform: translateY(-1px);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+

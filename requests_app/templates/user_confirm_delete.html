@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Delete User - IT Service Tracker{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md mx-auto">
+    <!-- Header Card -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-red-600 to-pink-700 text-white shadow-lg mb-6">
+        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Delete User</h1>
+      <p class="text-gray-600">This action cannot be undone</p>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="card bg-white rounded-2xl shadow-xl p-8">
+      <div class="text-center mb-6">
+        <div class="mx-auto h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+          <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">Are you sure?</h2>
+        <p class="text-gray-600 mb-4">
+          You are about to delete the user account for 
+          <strong>{{ object.get_full_name|default:object.username }}</strong>.
+        </p>
+        <p class="text-sm text-gray-500">
+          This will permanently remove the user and all associated data.
+        </p>
+      </div>
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div class="flex flex-col sm:flex-row gap-3">
+          <a href="{% url 'requests_app:user_list' %}" class="btn-secondary flex-1 inline-flex items-center justify-center rounded-xl px-4 py-3 font-medium text-center">
+            <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Cancel
+          </a>
+          <button type="submit" class="btn-danger flex-1 inline-flex items-center justify-center rounded-xl px-4 py-3 font-medium text-white bg-gradient-to-r from-red-600 to-pink-700 hover:from-red-700 hover:to-pink-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Delete User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn-danger {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+  }
+</style>
+{% endblock %}

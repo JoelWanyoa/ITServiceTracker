@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - IT Service Tracker{% endblock %}
+
+{% block content %}
+  <!-- Hero Section -->
+  <div class="text-center mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">IT Service Tracker</h1>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">Streamline your IT support requests and track their progress</p>
+  </div>
+
+  <!-- User Welcome -->
+  {% if user.is_authenticated %}
+    <div class="bg-white rounded-xl p-6 mb-8 shadow-sm">
+      <h2 class="text-xl font-semibold text-gray-900">Welcome back, {{ user.get_full_name|default:user.username }}! 👋</h2>
+      <p class="text-gray-600 mt-1">What would you like to do today?</p>
+    </div>
+  {% endif %}
+
+  <!-- Quick Actions Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 {% if user.is_staff %}lg:grid-cols-3{% else %}lg:grid-cols-2{% endif %} gap-6 mb-8">
+    {% if user.is_authenticated %}
+      {% if not user.is_staff %}
+        <!-- Regular User Cards -->
+        <a href="/submit/" class="card rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Submit Request</h3>
+          <p class="text-gray-600 text-sm">Create a new IT support ticket</p>
+        </a>
+
+        <a href="{% url 'requests_app:my_requests' %}" class="card rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="h-12 w-12 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">My Requests</h3>
+          <p class="text-gray-600 text-sm">Track your support tickets</p>
+        </a>
+      {% else %}
+        <!-- Staff User Cards -->
+        <a href="/requests/" class="card rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="h-12 w-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">All Requests</h3>
+          <p class="text-gray-600 text-sm">Manage all support tickets</p>
+        </a>
+
+        <a href="{% url 'requests_app:signup' %}" class="card rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="h-12 w-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Register User</h3>
+          <p class="text-gray-600 text-sm">Create new user accounts</p>
+        </a>
+
+        <a href="/" class="card rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
+          <p class="text-gray-600 text-sm">View support metrics</p>
+        </a>
+      {% endif %}
+    {% else %}
+      <!-- Guest User Cards -->
+      <a href="{% url 'requests_app:account_login' %}" class="card rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Sign In</h3>
+        <p class="text-gray-600 text-sm">Access your account</p>
+      </a>
+
+      <div class="card rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Get Access</h3>
+        <p class="text-gray-600 text-sm">Contact administrator for account</p>
+      </div>
+    {% endif %}
+  </div>
+  {% endblock %}

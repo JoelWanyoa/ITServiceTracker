@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Management - IT Service Tracker{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+    <div class="mb-4 sm:mb-0">
+      <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
+      <p class="mt-2 text-gray-600">Manage all registered users in the system</p>
+    </div>
+    
+    <div class="flex flex-col sm:flex-row gap-3">
+      <a href="{% url 'requests_app:user_create' %}" class="btn-primary inline-flex items-center justify-center px-4 py-2 text-sm font-medium">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add New User
+      </a>
+      <a href="{% url 'requests_app:dashboard' %}" class="btn-secondary inline-flex items-center justify-center px-4 py-2 text-sm font-medium">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="mb-6">
+    {% for message in messages %}
+    <div class="rounded-xl border {% if message.tags == 'success' %}border-green-200 bg-green-50 text-green-800{% else %}border-blue-200 bg-blue-50 text-blue-800{% endif %} px-4 py-3 text-sm mb-2">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        {{ message }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Filters and Search -->
+  <div class="card bg-white rounded-xl shadow-sm p-6 mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex flex-col sm:flex-row gap-3 flex-1">
+        <select id="statusFilter" class="form-select rounded-lg border-gray-300 text-sm px-4 py-2 w-full sm:w-48">
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="staff">Staff</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        
+        <div class="relative flex-1 max-w-md">
+          <input type="text" id="searchInput" placeholder="Search users..." class="form-input pl-10 pr-4 py-2 rounded-lg border-gray-300 text-sm w-full" />
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+      </div>
+      
+      <button id="clearFilters" class="btn-secondary px-4 py-2 text-sm font-medium whitespace-nowrap">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="card bg-white rounded-xl shadow-sm overflow-hidden">
+    {% if users %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Department</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+          {% for user_obj in users %}
+          <tr class="hover:bg-gray-50 transition-colors duration-150 user-row" 
+              data-status="{% if user_obj.is_staff %}staff{% elif user_obj.is_active %}active{% else %}inactive{% endif %}"
+              data-search="{{ user_obj.username }} {{ user_obj.first_name }} {{ user_obj.last_name }} {{ user_obj.email }} {{ user_obj.profile.department|default:'' }}">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">
+                    {{ user_obj.get_full_name|default:user_obj.username }}
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    @{{ user_obj.username }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ user_obj.email }}</div>
+            </td>
+            
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-600">
+                {% if user_obj.profile.department %}
+                  {{ user_obj.profile.department }}
+                {% else %}
+                  <span class="text-gray-400">-</span>
+                {% endif %}
+              </div>
+            </td>
+            
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex flex-wrap gap-1">
+                {% if user_obj.is_staff %}
+                <span class="status-badge status-staff text-xs font-semibold px-2 py-1 rounded-full">
+                  Staff
+                </span>
+                {% endif %}
+                {% if user_obj.is_active %}
+                <span class="status-badge status-active text-xs font-semibold px-2 py-1 rounded-full">
+                  Active
+                </span>
+                {% else %}
+                <span class="status-badge status-inactive text-xs font-semibold px-2 py-1 rounded-full">
+                  Inactive
+                </span>
+                {% endif %}
+              </div>
+            </td>
+            
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-600">{{ user_obj.date_joined|date:"M d, Y" }}</div>
+              <div class="text-xs text-gray-400">{{ user_obj.date_joined|date:"h:i A" }}</div>
+            </td>
+            
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center space-x-2">
+                <a href="{% url 'requests_app:user_edit' user_obj.id %}" 
+                   class="btn-edit inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-900">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                  Edit
+                </a>
+                <a href="{% url 'requests_app:user_delete' user_obj.id %}" 
+                   class="btn-delete inline-flex items-center text-sm font-medium text-red-600 hover:text-red-900">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Delete
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white px-6 py-4 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+        <div class="flex space-x-2">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary px-3 py-1 text-sm">
+            Previous
+          </a>
+          {% endif %}
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary px-3 py-1 text-sm">
+            Next
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16">
+      <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+      <p class="text-gray-500 mb-6 max-w-md mx-auto">
+        There are no users registered in the system yet.
+      </p>
+      <a href="{% url 'requests_app:user_create' %}" class="btn-primary inline-flex items-center px-4 py-2 text-sm font-medium">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add First User
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .status-staff {
+    background-color: #6366f1;
+    color: white;
+  }
+  
+  .status-active {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .status-inactive {
+    background-color: #6b7280;
+    color: white;
+  }
+  
+  .btn-primary {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .btn-secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .btn-edit, .btn-delete {
+    transition: color 0.2s;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const statusFilter = document.getElementById('statusFilter');
+    const searchInput = document.getElementById('searchInput');
+    const clearFilters = document.getElementById('clearFilters');
+    const userRows = document.querySelectorAll('.user-row');
+    
+    function filterUsers() {
+      const statusValue = statusFilter ? statusFilter.value.toLowerCase() : '';
+      const searchValue = searchInput ? searchInput.value.toLowerCase() : '';
+      
+      userRows.forEach(row => {
+        const rowStatus = row.getAttribute('data-status').toLowerCase();
+        const rowSearchText = row.getAttribute('data-search').toLowerCase();
+        
+        // Status filter: exact match
+        const statusMatch = !statusValue || rowStatus === statusValue;
+        
+        // Search filter: contains match in any field
+        const searchMatch = !searchValue || rowSearchText.includes(searchValue);
+        
+        if (statusMatch && searchMatch) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    // Add event listeners if elements exist
+    if (statusFilter) statusFilter.addEventListener('change', filterUsers);
+    if (searchInput) searchInput.addEventListener('input', filterUsers);
+    if (clearFilters) {
+      clearFilters.addEventListener('click', function() {
+        if (statusFilter) statusFilter.value = '';
+        if (searchInput) searchInput.value = '';
+        filterUsers();
+      });
+    }
+  });
+</script>
+{% endblock %}
