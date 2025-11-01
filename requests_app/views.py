@@ -4,8 +4,9 @@ from django.contrib.auth import login
 from django.http import HttpResponse
 from django.db.models import Count, Q
 from .models import ServiceRequest
-from .forms import ServiceRequestForm, UserRegistrationForm
+from .forms import ServiceRequestForm, UserRegistrationForm, ResolutionStepForm
 from django.conf import settings
+from django.contrib import messages
 import requests  # used for simple SendGrid or mock API call
 from datetime import datetime, timedelta
 
@@ -204,16 +205,55 @@ def detail_request(request, pk):
         if req.requester_name != user_name:
             return HttpResponse("Forbidden", status=403)
     
-    # Only staff can mark as resolved
-    if request.method == 'POST' and 'mark_resolved' in request.POST:
-        if not request.user.is_staff:
-            return HttpResponse("Forbidden", status=403)
-        req.mark_resolved()
-        # Optionally notify requester of resolution
-        send_resolution_email(req)
+    resolution_steps = req.resolution_steps.all()
+    step_form = ResolutionStepForm()
+    
+    # Handle status updates and resolution steps for staff users
+    if request.method == 'POST' and request.user.is_staff:
+        # Handle status changes
+        if 'mark_resolved' in request.POST:
+            req.mark_resolved(user=request.user)
+            messages.success(request, f'Request #{req.id} has been marked as resolved!')
+        elif 'mark_in_progress' in request.POST:
+            req.status = 'In Progress'
+            req.save()
+            messages.success(request, f'Request #{req.id} is now in progress!')
+        elif 'mark_pending' in request.POST:
+            req.status = 'Pending'
+            req.save()
+            messages.success(request, f'Request #{req.id} has been reopened!')
+        
+        # Handle adding resolution steps
+        elif 'add_resolution_step' in request.POST:
+            step_form = ResolutionStepForm(request.POST)
+            if step_form.is_valid():
+                resolution_step = step_form.save(commit=False)
+                resolution_step.service_request = req
+                resolution_step.created_by = request.user
+                resolution_step.save()
+                messages.success(request, 'Resolution step added successfully!')
+                return redirect('requests_app:detail_request', pk=pk)
+        
+        # Handle deleting resolution steps
+        elif 'delete_step' in request.POST:
+            step_id = request.POST.get('step_id')
+            try:
+                step = ResolutionStep.objects.get(id=step_id, service_request=req)
+                step.delete()
+                messages.success(request, 'Resolution step deleted successfully!')
+            except ResolutionStep.DoesNotExist:
+                messages.error(request, 'Step not found.')
+        
         return redirect('requests_app:detail_request', pk=pk)
     
-    return render(request, 'request_detail.html', {'req': req, 'user': request.user})
+    context = {
+        'req': req,
+        'user': request.user,
+        'resolution_steps': resolution_steps,
+        'step_form': step_form,
+    }
+    
+    return render(request, 'request_detail.html', context)
 
 @login_required
 def my_requests(request):
