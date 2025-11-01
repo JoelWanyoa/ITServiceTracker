@@ -52,6 +52,17 @@ class ServiceRequest(models.Model):
     def __str__(self):
         return f"{self.requester_name} - {self.category} ({self.status})"
 
+    def update_status_based_on_steps(self):
+        """Automatically update status based on resolution steps"""
+        has_steps = self.resolution_steps.exists()
+        
+        if has_steps and self.status == 'Pending':
+            self.status = 'In Progress'
+            self.save()
+        elif not has_steps and self.status == 'In Progress':
+            self.status = 'Pending'
+            self.save()
+
 class ResolutionStep(models.Model):
     service_request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE, related_name='resolution_steps')
     step_number = models.PositiveIntegerField()
