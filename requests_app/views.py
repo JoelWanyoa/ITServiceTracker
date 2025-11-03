@@ -10,6 +10,10 @@ from django.contrib import messages
 import requests  # used for simple SendGrid or mock API call
 from datetime import datetime, timedelta
 
+# Add these imports for user management
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
 def home(request):
     """
     Home page view that redirects authenticated users appropriately:
@@ -210,7 +214,7 @@ def detail_request(request, pk):
     
     # Handle status updates and resolution steps for staff users
     if request.method == 'POST' and request.user.is_staff:
-        # Handle status changes
+        # Handle status changes - ONLY when explicitly requested
         if 'mark_resolved' in request.POST:
             req.mark_resolved(user=request.user)
             messages.success(request, f'Request #{req.id} has been marked as resolved!')
@@ -223,7 +227,7 @@ def detail_request(request, pk):
             req.save()
             messages.success(request, f'Request #{req.id} has been reopened!')
         
-        # Handle adding resolution steps
+        # Handle adding resolution steps - NO automatic status change
         elif 'add_resolution_step' in request.POST:
             step_form = ResolutionStepForm(request.POST)
             if step_form.is_valid():
@@ -234,7 +238,7 @@ def detail_request(request, pk):
                 messages.success(request, 'Resolution step added successfully!')
                 return redirect('requests_app:detail_request', pk=pk)
         
-        # Handle deleting resolution steps
+        # Handle deleting resolution steps - NO automatic status change
         elif 'delete_step' in request.POST:
             step_id = request.POST.get('step_id')
             try:
@@ -341,3 +345,131 @@ def send_new_request_email(req):
 def send_resolution_email(req):
     # Similar implementation: notify IT/admin or requester if you stored email (not in spec)
     pass
+
+@login_required
+def user_list(request):
+    """
+    View to show all registered users - only accessible by staff
+    """
+    if not request.user.is_staff:
+        return HttpResponse("Forbidden. Only administrators can view user list.", status=403)
+    
+    # Get all users ordered by date joined (newest first)
+    users = User.objects.all().order_by('-date_joined')
+    
+    # Get user counts for statistics
+    total_users = users.count()
+    staff_users = users.filter(is_staff=True).count()
+    active_users = users.filter(is_active=True).count()
+    
+    # Handle search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+    
+    # Handle status filter
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'staff':
+        users = users.filter(is_staff=True)
+    elif status_filter == 'active':
+        users = users.filter(is_active=True)
+    elif status_filter == 'inactive':
+        users = users.filter(is_active=False)
+    
+    context = {
+        'users': users,
+        'total_users': total_users,
+        'staff_users': staff_users,
+        'active_users': active_users,
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+    
+    return render(request, 'user_list.html', context)
+
+@login_required
+def user_update(request, pk):
+    """
+    Update an existing user - only accessible by staff
+    """
+    if not request.user.is_staff:
+        return HttpResponse("Forbidden. Only administrators can update users.", status=403)
+    
+    user = get_object_or_404(User, pk=pk)
+    
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST, instance=user)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'User {user.username} updated successfully!')
+            return redirect('requests_app:user_list')
+    else:
+        form = UserRegistrationForm(instance=user)
+    
+    return render(request, 'user_form.html', {
+        'form': form,
+        'title': 'Update User',
+        'action': 'Update',
+        'user_obj': user
+    })
+
+@login_required
+def user_delete(request, pk):
+    """
+    Delete a user - only accessible by staff
+    """
+    if not request.user.is_staff:
+        return HttpResponse("Forbidden. Only administrators can delete users.", status=403)
+    
+    user = get_object_or_404(User, pk=pk)
+    
+    # Prevent users from deleting themselves
+    if request.user.id == user.id:
+        messages.error(request, 'You cannot delete your own account!')
+        return redirect('requests_app:user_list')
+    
+    if request.method == 'POST':
+        username = user.username
+        user.delete()
+        messages.success(request, f'User {username} deleted successfully!')
+        return redirect('requests_app:user_list')
+    
+    return render(request, 'user_confirm_delete.html', {
+        'user_obj': user
+    })
+
+@login_required
+def user_detail(request, pk):
+    """
+    View user details - only accessible by staff
+    """
+    if not request.user.is_staff:
+        return HttpResponse("Forbidden. Only administrators can view user details.", status=403)
+    
+    user = get_object_or_404(User, pk=pk)
+    
+    # Get user's service request statistics
+    user_requests = ServiceRequest.objects.filter(requester_name=user.get_full_name() or user.username)
+    total_requests = user_requests.count()
+    pending_requests = user_requests.filter(status='Pending').count()
+    in_progress_requests = user_requests.filter(status='In Progress').count()
+    resolved_requests = user_requests.filter(status='Resolved').count()
+    
+    # Recent requests
+    recent_requests = user_requests.order_by('-created_at')[:5]
+    
+    context = {
+        'user_obj': user,
+        'total_requests': total_requests,
+        'pending_requests': pending_requests,
+        'in_progress_requests': in_progress_requests,
+        'resolved_requests': resolved_requests,
+        'recent_requests': recent_requests,
+    }
+    
+    return render(request, 'user_detail.html', context)

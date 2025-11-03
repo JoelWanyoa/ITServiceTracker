@@ -19,4 +19,8 @@ urlpatterns = [
     path('my-requests/', views.my_requests, name='my_requests'),
     path('requests/', views.list_requests, name='list_requests'),
     path('requests/<int:pk>/', views.detail_request, name='detail_request'),
+    path('users/', views.user_list, name='user_list'),
+    path('users/<int:pk>/', views.user_detail, name='user_detail'),
+    path('users/<int:pk>/update/', views.user_update, name='user_update'),
+    path('users/<int:pk>/delete/', views.user_delete, name='user_delete'),
 ]

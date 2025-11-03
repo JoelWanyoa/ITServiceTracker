@@ -4,304 +4,543 @@
 {% block title %}User Management - IT Service Tracker{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <!-- Header Section -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-    <div class="mb-4 sm:mb-0">
-      <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
-      <p class="mt-2 text-gray-600">Manage all registered users in the system</p>
-    </div>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     
-    <div class="flex flex-col sm:flex-row gap-3">
-      <a href="{% url 'requests_app:user_create' %}" class="btn-primary inline-flex items-center justify-center px-4 py-2 text-sm font-medium">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Add New User
-      </a>
-      <a href="{% url 'requests_app:dashboard' %}" class="btn-secondary inline-flex items-center justify-center px-4 py-2 text-sm font-medium">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
-        Dashboard
-      </a>
-    </div>
-  </div>
-
-  <!-- Messages -->
-  {% if messages %}
-  <div class="mb-6">
-    {% for message in messages %}
-    <div class="rounded-xl border {% if message.tags == 'success' %}border-green-200 bg-green-50 text-green-800{% else %}border-blue-200 bg-blue-50 text-blue-800{% endif %} px-4 py-3 text-sm mb-2">
-      <div class="flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        {{ message }}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <!-- Filters and Search -->
-  <div class="card bg-white rounded-xl shadow-sm p-6 mb-6">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div class="flex flex-col sm:flex-row gap-3 flex-1">
-        <select id="statusFilter" class="form-select rounded-lg border-gray-300 text-sm px-4 py-2 w-full sm:w-48">
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="staff">Staff</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        
-        <div class="relative flex-1 max-w-md">
-          <input type="text" id="searchInput" placeholder="Search users..." class="form-input pl-10 pr-4 py-2 rounded-lg border-gray-300 text-sm w-full" />
-          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </div>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 animate-fade-in">
+      <div class="mb-4 sm:mb-0">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">User Management</h1>
+        <p class="text-gray-600">Manage all registered users in the system</p>
       </div>
       
-      <button id="clearFilters" class="btn-secondary px-4 py-2 text-sm font-medium whitespace-nowrap">
-        Clear Filters
-      </button>
-    </div>
-  </div>
-
-  <!-- Users Table -->
-  <div class="card bg-white rounded-xl shadow-sm overflow-hidden">
-    {% if users %}
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Department</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
-          {% for user_obj in users %}
-          <tr class="hover:bg-gray-50 transition-colors duration-150 user-row" 
-              data-status="{% if user_obj.is_staff %}staff{% elif user_obj.is_active %}active{% else %}inactive{% endif %}"
-              data-search="{{ user_obj.username }} {{ user_obj.first_name }} {{ user_obj.last_name }} {{ user_obj.email }} {{ user_obj.profile.department|default:'' }}">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                  {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
-                </div>
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">
-                    {{ user_obj.get_full_name|default:user_obj.username }}
-                  </div>
-                  <div class="text-sm text-gray-500">
-                    @{{ user_obj.username }}
-                  </div>
-                </div>
-              </div>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">{{ user_obj.email }}</div>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-600">
-                {% if user_obj.profile.department %}
-                  {{ user_obj.profile.department }}
-                {% else %}
-                  <span class="text-gray-400">-</span>
-                {% endif %}
-              </div>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex flex-wrap gap-1">
-                {% if user_obj.is_staff %}
-                <span class="status-badge status-staff text-xs font-semibold px-2 py-1 rounded-full">
-                  Staff
-                </span>
-                {% endif %}
-                {% if user_obj.is_active %}
-                <span class="status-badge status-active text-xs font-semibold px-2 py-1 rounded-full">
-                  Active
-                </span>
-                {% else %}
-                <span class="status-badge status-inactive text-xs font-semibold px-2 py-1 rounded-full">
-                  Inactive
-                </span>
-                {% endif %}
-              </div>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-600">{{ user_obj.date_joined|date:"M d, Y" }}</div>
-              <div class="text-xs text-gray-400">{{ user_obj.date_joined|date:"h:i A" }}</div>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center space-x-2">
-                <a href="{% url 'requests_app:user_edit' user_obj.id %}" 
-                   class="btn-edit inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-900">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                  Edit
-                </a>
-                <a href="{% url 'requests_app:user_delete' user_obj.id %}" 
-                   class="btn-delete inline-flex items-center text-sm font-medium text-red-600 hover:text-red-900">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                  Delete
-                </a>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a href="{% url 'requests_app:signup' %}" class="btn-primary inline-flex items-center justify-center px-6 py-3 font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add New User
+        </a>
+        <a href="{% url 'requests_app:ui_dashboard' %}" class="btn-secondary inline-flex items-center justify-center px-6 py-3 font-semibold rounded-2xl transition-all duration-300 hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Dashboard
+        </a>
+      </div>
     </div>
 
-    <!-- Pagination -->
-    {% if is_paginated %}
-    <div class="bg-white px-6 py-4 border-t border-gray-200">
-      <div class="flex items-center justify-between">
-        <div class="text-sm text-gray-700">
-          Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in-up">
+      <div class="stat-card stat-card-blue">
+        <div class="stat-icon bg-gradient-to-br from-blue-500 to-blue-600">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+          </svg>
         </div>
-        <div class="flex space-x-2">
-          {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary px-3 py-1 text-sm">
-            Previous
-          </a>
-          {% endif %}
-          {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary px-3 py-1 text-sm">
-            Next
-          </a>
-          {% endif %}
+        <div>
+          <p class="stat-label">Total Users</p>
+          <p class="stat-value">{{ total_users }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-green">
+        <div class="stat-icon bg-gradient-to-br from-emerald-500 to-emerald-600">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="stat-label">Staff Members</p>
+          <p class="stat-value">{{ staff_users }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-purple">
+        <div class="stat-icon bg-gradient-to-br from-purple-500 to-purple-600">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="stat-label">Active Users</p>
+          <p class="stat-value">{{ active_users }}</p>
         </div>
       </div>
     </div>
-    {% endif %}
 
-    {% else %}
-    <!-- Empty State -->
-    <div class="text-center py-16">
-      <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Filters and Search -->
+    <div class="filters-card mb-8">
+      <form method="get" class="space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex flex-col sm:flex-row gap-3 flex-1">
+            <select name="status" class="filter-select">
+              <option value="">All Statuses</option>
+              <option value="staff" {% if status_filter == 'staff' %}selected{% endif %}>Staff</option>
+              <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+              <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+            
+            <div class="relative flex-1 max-w-md">
+              <input type="text" name="search" value="{{ search_query }}" placeholder="Search users..." class="search-input" />
+              <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <button type="submit" class="filter-button">
+              Apply Filters
+            </button>
+            <a href="{% url 'requests_app:user_list' %}" class="clear-filters-button">
+              Clear
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-table-card">
+      {% if users %}
+      <div class="overflow-x-auto">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th class="table-header">User</th>
+              <th class="table-header">Email</th>
+              <th class="table-header">Status</th>
+              <th class="table-header">Joined</th>
+              <th class="table-header">Last Login</th>
+              <th class="table-header">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user_obj in users %}
+            <tr class="table-row group">
+              <td class="table-cell">
+                <div class="flex items-center">
+                  <div class="user-avatar">
+                    {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
+                  </div>
+                  <div class="ml-4">
+                    <div class="user-name">
+                      {{ user_obj.get_full_name|default:user_obj.username }}
+                    </div>
+                    <div class="user-username">
+                      @{{ user_obj.username }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              
+              <td class="table-cell">
+                <div class="user-email">{{ user_obj.email }}</div>
+              </td>
+              
+              <td class="table-cell">
+                <div class="flex flex-wrap gap-1">
+                  {% if user_obj.is_staff %}
+                  <span class="status-badge status-staff">Staff</span>
+                  {% endif %}
+                  {% if user_obj.is_active %}
+                  <span class="status-badge status-active">Active</span>
+                  {% else %}
+                  <span class="status-badge status-inactive">Inactive</span>
+                  {% endif %}
+                </div>
+              </td>
+              
+              <td class="table-cell">
+                <div class="user-date">{{ user_obj.date_joined|date:"M d, Y" }}</div>
+                <div class="user-time">{{ user_obj.date_joined|date:"h:i A" }}</div>
+              </td>
+              
+              <td class="table-cell">
+                {% if user_obj.last_login %}
+                <div class="user-date">{{ user_obj.last_login|date:"M d, Y" }}</div>
+                <div class="user-time">{{ user_obj.last_login|date:"h:i A" }}</div>
+                {% else %}
+                <span class="text-gray-400 text-sm">Never</span>
+                {% endif %}
+              </td>
+              <td class="table-cell">
+                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <a href="{% url 'requests_app:user_detail' user_obj.id %}" class="action-btn action-view" title="View Details">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </a>
+                  <a href="{% url 'requests_app:user_update' user_obj.id %}" class="action-btn action-edit" title="Edit User">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </a>
+                  {% if user_obj.id != request.user.id %}
+                  <a href="{% url 'requests_app:user_delete' user_obj.id %}" class="action-btn action-delete" title="Delete User">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <!-- Empty State -->
+      <div class="empty-state">
+        <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
         </svg>
+        <h3 class="empty-title">No users found</h3>
+        <p class="empty-subtitle">
+          {% if search_query or status_filter %}
+          Try adjusting your search criteria or filters
+          {% else %}
+          There are no users registered in the system yet
+          {% endif %}
+        </p>
+        <a href="{% url 'requests_app:signup' %}" class="empty-action-button">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add First User
+        </a>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-      <p class="text-gray-500 mb-6 max-w-md mx-auto">
-        There are no users registered in the system yet.
-      </p>
-      <a href="{% url 'requests_app:user_create' %}" class="btn-primary inline-flex items-center px-4 py-2 text-sm font-medium">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Add First User
-      </a>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 </div>
 
 <style>
+  /* Animations */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in { animation: fade-in 0.6s ease-out; }
+  .animate-fade-in-up { animation: fade-in-up 0.8s ease-out; }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-secondary {
+    background: white;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #f9fafb;
+    box-shadow: 0 20px 25px -5px rgba(156, 163, 175, 0.2);
+  }
+
+  /* Stat Cards */
+  .stat-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(156, 163, 175, 0.1);
+  }
+
+  .stat-card-blue:hover { box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1); }
+  .stat-card-green:hover { box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.1); }
+  .stat-card-purple:hover { box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.1); }
+
+  .stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* Filters */
+  .filters-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    backdrop-filter: blur(4px);
+  }
+
+  .filter-select {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+
+  .filter-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+
+  .search-input {
+    width: 100;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.8);
+    padding-left: 2.5rem;
+    padding-right: 1rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+
+  .search-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .filter-button {
+    background: #6366f1;
+    color: white;
+    font-weight: 500;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .filter-button:hover {
+    background: #4f46e5;
+    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+    transform: scale(1.05);
+  }
+
+  .clear-filters-button {
+    background: #f3f4f6;
+    color: #4b5563;
+    font-weight: 500;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+  }
+
+  .clear-filters-button:hover {
+    background: #e5e7eb;
+    transform: scale(1.05);
+  }
+
+  /* Users Table */
+  .users-table-card {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+  }
+
+  .users-table {
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-header {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(249, 250, 251, 0.8);
+  }
+
+  .table-row {
+    transition: all 0.2s ease;
+  }
+
+  .table-row:hover {
+    background: rgba(249, 250, 251, 0.5);
+  }
+
+  .table-cell {
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .user-avatar {
+    height: 2.5rem;
+    width: 2.5rem;
+    background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .user-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+  }
+
+  .user-username {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .user-email {
+    font-size: 0.875rem;
+    color: #111827;
+  }
+
+  .user-date {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+
+  .user-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+
+  /* Status Badges */
   .status-badge {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
   }
-  
+
   .status-staff {
-    background-color: #6366f1;
-    color: white;
+    background: #e0e7ff;
+    color: #4338ca;
   }
-  
+
   .status-active {
-    background-color: #10b981;
-    color: white;
+    background: #d1fae5;
+    color: #065f46;
   }
-  
+
   .status-inactive {
-    background-color: #6b7280;
-    color: white;
-  }
-  
-  .btn-primary {
-    background-color: #2563eb;
-    color: white;
-    border-radius: 8px;
-    transition: background-color 0.2s;
-  }
-  
-  .btn-primary:hover {
-    background-color: #1d4ed8;
-  }
-  
-  .btn-secondary {
-    background-color: #f3f4f6;
+    background: #f3f4f6;
     color: #374151;
-    border-radius: 8px;
-    transition: background-color 0.2s;
   }
-  
-  .btn-secondary:hover {
-    background-color: #e5e7eb;
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
   }
-  
-  .btn-edit, .btn-delete {
-    transition: color 0.2s;
+
+  .empty-icon {
+    width: 4rem;
+    height: 4rem;
+    color: #d1d5db;
+    margin: 0 auto 1rem;
+  }
+
+  .empty-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-subtitle {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+    max-width: 32rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .empty-action-button {
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .empty-action-button:hover {
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+    transform: scale(1.05);
   }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Filter functionality
-    const statusFilter = document.getElementById('statusFilter');
-    const searchInput = document.getElementById('searchInput');
-    const clearFilters = document.getElementById('clearFilters');
-    const userRows = document.querySelectorAll('.user-row');
-    
-    function filterUsers() {
-      const statusValue = statusFilter ? statusFilter.value.toLowerCase() : '';
-      const searchValue = searchInput ? searchInput.value.toLowerCase() : '';
-      
-      userRows.forEach(row => {
-        const rowStatus = row.getAttribute('data-status').toLowerCase();
-        const rowSearchText = row.getAttribute('data-search').toLowerCase();
-        
-        // Status filter: exact match
-        const statusMatch = !statusValue || rowStatus === statusValue;
-        
-        // Search filter: contains match in any field
-        const searchMatch = !searchValue || rowSearchText.includes(searchValue);
-        
-        if (statusMatch && searchMatch) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-    }
-    
-    // Add event listeners if elements exist
-    if (statusFilter) statusFilter.addEventListener('change', filterUsers);
-    if (searchInput) searchInput.addEventListener('input', filterUsers);
-    if (clearFilters) {
-      clearFilters.addEventListener('click', function() {
-        if (statusFilter) statusFilter.value = '';
-        if (searchInput) searchInput.value = '';
-        filterUsers();
-      });
-    }
-  });
-</script>
 {% endblock %}

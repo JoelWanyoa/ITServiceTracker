@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ user_obj.get_full_name|default:user_obj.username }} - User Details{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 animate-fade-in">
+      <div class="mb-4 sm:mb-0">
+        <div class="flex items-center">
+          <a href="{% url 'requests_app:user_list' %}" class="btn-secondary mr-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+          </a>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">User Details</h1>
+            <p class="text-gray-600">Manage user information and view activity</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a href="{% url 'requests_app:user_update' user_obj.id %}" class="btn-primary inline-flex items-center justify-center px-6 py-3 font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Edit User
+        </a>
+        {% if user_obj.id != request.user.id %}
+        <a href="{% url 'requests_app:user_delete' user_obj.id %}" class="btn-danger inline-flex items-center justify-center px-6 py-3 font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Delete User
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- User Profile & Statistics -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+      <!-- User Profile Card -->
+      <div class="xl:col-span-1">
+        <div class="user-profile-card">
+          <!-- User Avatar and Basic Info -->
+          <div class="text-center mb-6">
+            <div class="user-avatar-profile mx-auto mb-4">
+              {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-1">
+              {{ user_obj.get_full_name|default:user_obj.username }}
+            </h2>
+            <p class="text-gray-600 mb-2">@{{ user_obj.username }}</p>
+            
+            <!-- Status Badges -->
+            <div class="flex justify-center gap-2 mb-4">
+              {% if user_obj.is_staff %}
+              <span class="status-badge status-staff">Staff</span>
+              {% endif %}
+              {% if user_obj.is_active %}
+              <span class="status-badge status-active">Active</span>
+              {% else %}
+              <span class="status-badge status-inactive">Inactive</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- User Details -->
+          <div class="space-y-4">
+            <div class="user-detail-item">
+              <div class="user-detail-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="user-detail-label">Email Address</p>
+                <p class="user-detail-value">{{ user_obj.email }}</p>
+              </div>
+            </div>
+            
+            <div class="user-detail-item">
+              <div class="user-detail-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="user-detail-label">Joined Date</p>
+                <p class="user-detail-value">{{ user_obj.date_joined|date:"M d, Y" }}</p>
+              </div>
+            </div>
+            
+            <div class="user-detail-item">
+              <div class="user-detail-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="user-detail-label">Last Login</p>
+                <p class="user-detail-value">
+                  {% if user_obj.last_login %}
+                    {{ user_obj.last_login|date:"M d, Y" }}
+                  {% else %}
+                    Never logged in
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics & Activity Section -->
+      <div class="xl:col-span-2">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card stat-card-blue">
+            <div class="stat-icon bg-gradient-to-br from-blue-500 to-blue-600">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="stat-label">Total Requests</p>
+              <p class="stat-value">{{ total_requests }}</p>
+            </div>
+          </div>
+
+          <div class="stat-card stat-card-orange">
+            <div class="stat-icon bg-gradient-to-br from-orange-500 to-orange-600">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="stat-label">Pending</p>
+              <p class="stat-value">{{ pending_requests }}</p>
+            </div>
+          </div>
+
+          <div class="stat-card stat-card-yellow">
+            <div class="stat-icon bg-gradient-to-br from-yellow-500 to-yellow-600">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="stat-label">In Progress</p>
+              <p class="stat-value">{{ in_progress_requests }}</p>
+            </div>
+          </div>
+
+          <div class="stat-card stat-card-green">
+            <div class="stat-icon bg-gradient-to-br from-green-500 to-green-600">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="stat-label">Resolved</p>
+              <p class="stat-value">{{ resolved_requests }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Requests Table -->
+        <div class="recent-requests-card">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Recent Service Requests</h3>
+            <span class="text-sm text-gray-500">{{ recent_requests|length }} request{{ recent_requests|pluralize }}</span>
+          </div>
+          
+          {% if recent_requests %}
+          <div class="overflow-x-auto">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th class="table-header">Request Details</th>
+                  <th class="table-header">Category</th>
+                  <th class="table-header">Status</th>
+                  <th class="table-header">Priority</th>
+                  <th class="table-header">Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for request in recent_requests %}
+                <tr class="table-row group">
+                  <td class="table-cell">
+                    <div>
+                      <div class="text-sm font-medium text-gray-900 truncate max-w-xs">
+                        {{ request.description|truncatewords:8 }}
+                      </div>
+                      <div class="text-xs text-gray-500 mt-1">
+                        ID: #{{ request.id }}
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <td class="table-cell">
+                    <span class="category-badge">{{ request.category }}</span>
+                  </td>
+                  
+                  <td class="table-cell">
+                    <span class="status-badge status-{{ request.status|lower|slugify }}">
+                      {{ request.status }}
+                    </span>
+                  </td>
+                  
+                  <td class="table-cell">
+                    {% if request.priority %}
+                    <span class="priority-badge priority-{{ request.priority|lower }}">
+                      {{ request.priority }}
+                    </span>
+                    {% else %}
+                    <span class="text-gray-400 text-sm">Not set</span>
+                    {% endif %}
+                  </td>
+                  
+                  <td class="table-cell">
+                    <div class="text-sm text-gray-900">{{ request.created_at|date:"M d, Y" }}</div>
+                    <div class="text-xs text-gray-500">{{ request.created_at|date:"h:i A" }}</div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <!-- Empty State -->
+          <div class="empty-state">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3 class="empty-title">No requests found</h3>
+            <p class="empty-subtitle">
+              This user hasn't submitted any service requests yet.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Animations */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in { animation: fade-in 0.6s ease-out; }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-secondary {
+    background: white;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.1);
+    transition: all 0.3s ease;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-secondary:hover {
+    background: #f9fafb;
+    box-shadow: 0 20px 25px -5px rgba(156, 163, 175, 0.2);
+  }
+
+  .btn-danger {
+    background: linear-gradient(to right, #dc2626, #ef4444);
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(to right, #b91c1c, #dc2626);
+    box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.3);
+  }
+
+  /* User Profile Card */
+  .user-profile-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    backdrop-filter: blur(4px);
+    height: fit-content;
+  }
+
+  .user-avatar-profile {
+    height: 5rem;
+    width: 5rem;
+    background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.75rem;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+  }
+
+  .user-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .user-detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .user-detail-icon {
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    color: #64748b;
+  }
+
+  .user-detail-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .user-detail-value {
+    font-size: 0.875rem;
+    color: #111827;
+    font-weight: 500;
+  }
+
+  /* Stat Cards */
+  .stat-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(156, 163, 175, 0.1);
+  }
+
+  .stat-card-blue:hover { box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1); }
+  .stat-card-orange:hover { box-shadow: 0 20px 25px -5px rgba(249, 115, 22, 0.1); }
+  .stat-card-yellow:hover { box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.1); }
+  .stat-card-green:hover { box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.1); }
+
+  .stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* Recent Requests Card */
+  .recent-requests-card {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Users Table */
+  .users-table {
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-header {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(249, 250, 251, 0.8);
+  }
+
+  .table-row {
+    transition: all 0.2s ease;
+  }
+
+  .table-row:hover {
+    background: rgba(249, 250, 251, 0.5);
+  }
+
+  .table-cell {
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  /* Status Badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .status-staff {
+    background: #e0e7ff;
+    color: #4338ca;
+  }
+
+  .status-active {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .status-inactive {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .status-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .status-in-progress {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .status-resolved {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  /* Category Badge */
+  .category-badge {
+    background: #f8fafc;
+    color: #475569;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Priority Badges */
+  .priority-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .priority-high {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+
+  .priority-medium {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fed7aa;
+  }
+
+  .priority-low {
+    background: #f0fdf4;
+    color: #059669;
+    border: 1px solid #bbf7d0;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .empty-icon {
+    width: 4rem;
+    height: 4rem;
+    color: #d1d5db;
+    margin: 0 auto 1rem;
+  }
+
+  .empty-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-subtitle {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+    max-width: 32rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>
+{% endblock %}

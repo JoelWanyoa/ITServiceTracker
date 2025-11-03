@@ -1,54 +1,88 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Delete User - IT Service Tracker{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md mx-auto">
-    <!-- Header Card -->
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-red-600 to-pink-700 text-white shadow-lg mb-6">
-        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8">
+  <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header Section -->
+    <div class="mb-8 text-center animate-fade-in">
+      <div class="flex justify-center mb-4">
+        <div class="p-3 bg-red-100 rounded-full">
+          <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+        </div>
       </div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Delete User</h1>
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">Delete User</h1>
       <p class="text-gray-600">This action cannot be undone</p>
     </div>
 
     <!-- Confirmation Card -->
-    <div class="card bg-white rounded-2xl shadow-xl p-8">
+    <div class="confirmation-card">
       <div class="text-center mb-6">
-        <div class="mx-auto h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-          <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
+        <div class="user-avatar-large mx-auto mb-4">
+          {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
         </div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">Are you sure?</h2>
-        <p class="text-gray-600 mb-4">
-          You are about to delete the user account for 
-          <strong>{{ object.get_full_name|default:object.username }}</strong>.
-        </p>
-        <p class="text-sm text-gray-500">
-          This will permanently remove the user and all associated data.
-        </p>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">
+          {{ user_obj.get_full_name|default:user_obj.username }}
+        </h3>
+        <p class="text-gray-600 mb-2">@{{ user_obj.username }}</p>
+        <p class="text-gray-500 text-sm">{{ user_obj.email }}</p>
       </div>
 
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+          <svg class="w-5 h-5 text-red-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+          <div>
+            <h4 class="text-sm font-medium text-red-800">Warning</h4>
+            <p class="text-sm text-red-700 mt-1">
+              This will permanently delete the user account and all associated data. 
+              The user will no longer be able to access the system.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Statistics -->
+      <div class="bg-gray-50 rounded-lg p-4 mb-6">
+        <h4 class="text-sm font-medium text-gray-900 mb-3">User Statistics</h4>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="text-center">
+            <div class="text-gray-900 font-semibold">{{ user_obj.date_joined|date:"M d, Y" }}</div>
+            <div class="text-gray-500 text-xs">Joined</div>
+          </div>
+          <div class="text-center">
+            <div class="text-gray-900 font-semibold">
+              {% if user_obj.last_login %}
+                {{ user_obj.last_login|date:"M d, Y" }}
+              {% else %}
+                Never
+              {% endif %}
+            </div>
+            <div class="text-gray-500 text-xs">Last Login</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Form -->
       <form method="post" class="space-y-4">
         {% csrf_token %}
+        
         <div class="flex flex-col sm:flex-row gap-3">
-          <a href="{% url 'requests_app:user_list' %}" class="btn-secondary flex-1 inline-flex items-center justify-center rounded-xl px-4 py-3 font-medium text-center">
-            <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-            Cancel
-          </a>
-          <button type="submit" class="btn-danger flex-1 inline-flex items-center justify-center rounded-xl px-4 py-3 font-medium text-white bg-gradient-to-r from-red-600 to-pink-700 hover:from-red-700 hover:to-pink-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button type="submit" class="btn-danger flex-1">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
             Delete User
           </button>
+          <a href="{% url 'requests_app:user_list' %}" class="btn-secondary text-center">
+            Cancel
+          </a>
         </div>
       </form>
     </div>
@@ -56,13 +90,66 @@
 </div>
 
 <style>
-  .btn-danger {
-    transition: all 0.2s ease-in-out;
+  .confirmation-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    backdrop-filter: blur(4px);
   }
-  
+
+  .user-avatar-large {
+    height: 4rem;
+    width: 4rem;
+    background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-danger {
+    background: linear-gradient(to right, #dc2626, #ef4444);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.25);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .btn-danger:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+    background: linear-gradient(to right, #b91c1c, #dc2626);
+    box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.3);
+    transform: scale(1.02);
+  }
+
+  .btn-secondary {
+    background: white;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.1);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-secondary:hover {
+    background: #f9fafb;
+    box-shadow: 0 20px 25px -5px rgba(156, 163, 175, 0.2);
+    transform: scale(1.02);
   }
 </style>
 {% endblock %}

@@ -167,6 +167,42 @@
       color: var(--primary);
       background: rgba(37, 99, 235, 0.1);
     }
+
+    .action-btn {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-view {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.action-view:hover {
+  background: #bfdbfe;
+}
+
+.action-edit {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.action-edit:hover {
+  background: #fde68a;
+}
+
+.action-delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.action-delete:hover {
+  background: #fecaca;
+}
   </style>
   {% block extra_css %}{% endblock %}
 </head>
@@ -196,6 +232,7 @@
             {% if user.is_staff %}
               <a href="{% url 'requests_app:list_requests' %}" class="nav-link px-3 py-2 rounded-lg text-gray-700 hover:text-blue-600 font-medium {% if request.resolver_match.url_name == 'list_requests' %}active{% endif %}">All Requests</a>
               <a href="{% url 'requests_app:signup' %}" class="nav-link px-3 py-2 rounded-lg text-gray-700 hover:text-blue-600 font-medium {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">Register User</a>
+<a href="{% url 'requests_app:user_list' %}" class="nav-link px-3 py-2 rounded-lg text-gray-700 hover:text-blue-600 font-medium {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">Users</a>
             {% endif %}
           {% endif %}
         </div>

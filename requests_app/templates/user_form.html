@@ -1,76 +1,1164 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ title }} - IT Service Tracker{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md mx-auto">
-    <!-- Header Card -->
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg mb-6">
-        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-        </svg>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 animate-fade-in">
+      <div class="mb-4 sm:mb-0">
+        <div class="flex items-center">
+          <a href="{% url 'requests_app:user_list' %}" class="btn-secondary mr-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+          </a>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ title }} User</h1>
+            <p class="text-gray-600">Fill in the user details below</p>
+          </div>
+        </div>
       </div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ title }}</h1>
-      <p class="text-gray-600">{% if object %}Update user details{% else %}Register a new team member{% endif %}</p>
     </div>
 
-    <!-- Form Card -->
-    <div class="card bg-white rounded-2xl shadow-xl p-8">
-      <form method="post" class="space-y-6">
-        {% csrf_token %}
-        
-        <!-- Error Messages -->
-        {% if form.errors %}
-          <div class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm">
-            <div class="flex items-center">
+    <!-- Form Section -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <!-- Form Card -->
+      <div class="xl:col-span-2">
+        <div class="form-card">
+          <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="form-errors">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
               </svg>
-              {% if form.non_field_errors %}
-                {{ form.non_field_errors }}
-              {% else %}
-                Please correct the errors below.
-              {% endif %}
+              <div>
+                <h4 class="font-semibold">Please correct the following errors:</h4>
+                {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Basic Information Section -->
+            <div>
+              <h3 class="section-title">Basic Information</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Username -->
+                <div class="form-group">
+                  <label for="{{ form.username.id_for_label }}" class="form-label">
+                    Username *
+                  </label>
+                  <div class="relative">
+                    {{ form.username }}
+                    <div class="form-icon">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {% if form.username.errors %}
+                  <div class="form-field-errors">
+                    {% for error in form.username.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                  <label for="{{ form.email.id_for_label }}" class="form-label">
+                    Email Address *
+                  </label>
+                  <div class="relative">
+                    {{ form.email }}
+                    <div class="form-icon">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {% if form.email.errors %}
+                  <div class="form-field-errors">
+                    {% for error in form.email.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <!-- First Name -->
+                <div class="form-group">
+                  <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                    First Name
+                  </label>
+                  <div class="relative">
+                    {{ form.first_name }}
+                    <div class="form-icon">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {% if form.first_name.errors %}
+                  <div class="form-field-errors">
+                    {% for error in form.first_name.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <!-- Last Name -->
+                <div class="form-group">
+                  <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                    Last Name
+                  </label>
+                  <div class="relative">
+                    {{ form.last_name }}
+                    <div class="form-icon">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {% if form.last_name.errors %}
+                  <div class="form-field-errors">
+                    {% for error in form.last_name.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Section -->
+            <div>
+              <h3 class="section-title">Security</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Password -->
+                <div class="form-group">
+                  <label for="{{ form.password1.id_for_label }}" class="form-label">
+                    {% if action == 'Create' %}Password{% else %}New Password{% endif %} *
+                  </label>
+                  <div class="relative">
+                    {{ form.password1 }}
+                    <div class="form-icon">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {% if form.password1.errors %}
+                  <div class="form-field-errors">
+                    {% for error in form.password1.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                  {% if form.password1.help_text %}
+                  <div class="form-help-text">
+                    {{ form.password1.help_text }}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <!-- Password Confirmation -->
+                <div class="form-group">
+                  <label for="{{ form.password2.id_for_label }}" class="form-label">
+                    Confirm Password *
+                  </label>
+                  <div class="relative">
+                    {{ form.password2 }}
+                    <div class="form-icon">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {% if form.password2.errors %}
+                  <div class="form-field-errors">
+                    {% for error in form.password2.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Permissions Section -->
+            <div>
+              <h3 class="section-title">Permissions & Status</h3>
+              <div class="permissions-card">
+                <!-- Staff Status -->
+                <div class="permission-item">
+                  <div class="flex items-center">
+                    <div class="checkbox-wrapper">
+                      {{ form.is_staff }}
+                      <div class="checkbox-checkmark"></div>
+                    </div>
+                    <div class="ml-4">
+                      <label for="{{ form.is_staff.id_for_label }}" class="permission-label">
+                        Staff Member
+                      </label>
+                      <p class="permission-description">
+                        Staff members have access to the admin dashboard and can manage all service requests.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Active Status -->
+                <div class="permission-item">
+                  <div class="flex items-center">
+                    <div class="checkbox-wrapper">
+                      {{ form.is_active }}
+                      <div class="checkbox-checkmark"></div>
+                    </div>
+                    <div class="ml-4">
+                      <label for="{{ form.is_active.id_for_label }}" class="permission-label">
+                        Active User
+                      </label>
+                      <p class="permission-description">
+                        Inactive users cannot log in to the system.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+              <button type="submit" class="btn-primary flex-1">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                {{ action }} User
+              </button>
+              <a href="{% url 'requests_app:user_list' %}" class="btn-secondary text-center">
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Help Card -->
+      <div class="xl:col-span-1">
+        <div class="help-card">
+          <div class="help-icon">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="help-title">User Management Tips</h3>
+          <div class="space-y-4">
+            <div class="tip-item">
+              <strong>Username Requirements:</strong>
+              <p>150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
+            </div>
+            <div class="tip-item">
+              <strong>Password Security:</strong>
+              <p>Use a strong password with letters, numbers, and symbols.</p>
+            </div>
+            <div class="tip-item">
+              <strong>Staff Permissions:</strong>
+              <p>Staff members can manage all service requests and users.</p>
+            </div>
+            <div class="tip-item">
+              <strong>Active Status:</strong>
+              <p>Inactive users are preserved but cannot log in.</p>
             </div>
           </div>
-        {% endif %}
-
-        <!-- Form Fields (same as your existing form) -->
-        <div class="space-y-2">
-          <label for="id_username" class="block text-sm font-semibold text-gray-700">Username</label>
-          <input id="id_username" name="username" type="text" required value="{{ form.username.value|default:'' }}" 
-                 class="form-input block w-full rounded-xl border-gray-300 shadow-sm px-4 py-3 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                 placeholder="john.doe" />
-          {% if form.username.errors %}
-            <p class="text-sm text-red-600">{{ form.username.errors.0 }}</p>
-          {% endif %}
         </div>
-
-        <!-- Include all other form fields from your existing form -->
-        <!-- Email, First Name, Last Name, Department, Password fields -->
-        <!-- ... (copy the rest of your form fields from the previous example) ... -->
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn-primary w-full inline-flex items-center justify-center rounded-xl px-6 py-4 font-semibold text-white shadow-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-          <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          {% if object %}Update User{% else %}Create User{% endif %}
-        </button>
-      </form>
-
-      <!-- Footer Links -->
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <a href="{% url 'requests_app:user_list' %}" class="text-sm text-gray-600 hover:text-gray-900 flex items-center transition-colors duration-200">
-          <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to User List
-        </a>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  /* Animations */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in { animation: fade-in 0.6s ease-out; }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+    transform: scale(1.02);
+  }
+
+  .btn-secondary {
+    background: white;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.1);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-secondary:hover {
+    background: #f9fafb;
+    box-shadow: 0 20px 25px -5px rgba(156, 163, 175, 0.2);
+    transform: scale(1.02);
+  }
+
+  /* Form Card */
+  .form-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    backdrop-filter: blur(4px);
+  }
+
+  /* Section Titles */
+  .section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  /* Form Groups */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  /* Form Inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+  }
+
+  .form-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  /* Form Errors */
+  .form-errors {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-field-errors {
+    color: #dc2626;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #fecaca;
+  }
+
+  .form-help-text {
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #d1d5db;
+  }
+
+  /* Permissions Section */
+  .permissions-card {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .permission-item {
+    padding: 1rem 0;
+  }
+
+  .permission-item:not(:last-child) {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .permission-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+  }
+
+  .permission-description {
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  /* Custom Checkbox */
+  .checkbox-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+  }
+
+  .checkbox-checkmark {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.375rem;
+    background: white;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  input[type="checkbox"]:checked + .checkbox-checkmark {
+    background: #6366f1;
+    border-color: #6366f1;
+  }
+
+  input[type="checkbox"]:checked + .checkbox-checkmark::after {
+    content: '';
+    position: absolute;
+    left: 0.375rem;
+    top: 0.125rem;
+    width: 0.375rem;
+    height: 0.75rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  input[type="checkbox"]:focus + .checkbox-checkmark {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #6366f1;
+  }
+
+  /* Help Card */
+  .help-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.05);
+    backdrop-filter: blur(4px);
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+  }
+
+  .help-icon {
+    width: 3rem;
+    height: 3rem;
+    background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .help-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1.5rem;
+  }
+
+  .tip-item {
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    border-left: 3px solid #6366f1;
+  }
+
+  .tip-item strong {
+    color: #374151;
+    font-size: 0.875rem;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .tip-item p {
+    color: #6b7280;
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+</style>
+<script>
+  // Enhanced Form Validation Script
+class FormValidator {
+    constructor(formId) {
+        this.form = document.getElementById(formId);
+        this.fields = new Map();
+        this.init();
+    }
+
+    init() {
+        if (!this.form) return;
+
+        // Initialize field validation
+        this.setupFieldValidation();
+        
+        // Add real-time validation
+        this.addRealTimeValidation();
+        
+        // Add form submission handler
+        this.addFormSubmissionHandler();
+        
+        // Add input formatting
+        this.addInputFormatting();
+    }
+
+    setupFieldValidation() {
+        const validationRules = {
+            username: {
+                required: true,
+                minLength: 3,
+                maxLength: 150,
+                pattern: /^[a-zA-Z0-9@.+_-]+$/,
+                messages: {
+                    required: 'Username is required',
+                    minLength: 'Username must be at least 3 characters',
+                    maxLength: 'Username cannot exceed 150 characters',
+                    pattern: 'Username can only contain letters, numbers, and @/./+/-/_'
+                }
+            },
+            email: {
+                required: true,
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                messages: {
+                    required: 'Email address is required',
+                    pattern: 'Please enter a valid email address'
+                }
+            },
+            first_name: {
+                maxLength: 30,
+                messages: {
+                    maxLength: 'First name cannot exceed 30 characters'
+                }
+            },
+            last_name: {
+                maxLength: 30,
+                messages: {
+                    maxLength: 'Last name cannot exceed 30 characters'
+                }
+            },
+            password1: {
+                required: true,
+                minLength: 8,
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+                messages: {
+                    required: 'Password is required',
+                    minLength: 'Password must be at least 8 characters',
+                    pattern: 'Password must include uppercase, lowercase, number, and special character'
+                }
+            },
+            password2: {
+                required: true,
+                match: 'password1',
+                messages: {
+                    required: 'Please confirm your password',
+                    match: 'Passwords do not match'
+                }
+            }
+        };
+
+        // Initialize each field
+        Object.keys(validationRules).forEach(fieldName => {
+            const input = this.form.querySelector(`[name="${fieldName}"]`);
+            if (input) {
+                this.fields.set(fieldName, {
+                    input: input,
+                    rules: validationRules[fieldName],
+                    isValid: false
+                });
+            }
+        });
+    }
+
+    addRealTimeValidation() {
+        this.fields.forEach((field, fieldName) => {
+            const { input, rules } = field;
+
+            // Validate on input change
+            input.addEventListener('input', (e) => {
+                this.validateField(fieldName, e.target.value);
+                this.updateFieldStatus(fieldName);
+            });
+
+            // Validate on blur with enhanced feedback
+            input.addEventListener('blur', (e) => {
+                this.validateField(fieldName, e.target.value);
+                this.updateFieldStatus(fieldName, true);
+            });
+
+            // Clear validation on focus
+            input.addEventListener('focus', () => {
+                this.clearFieldError(fieldName);
+            });
+        });
+
+        // Add password strength indicator
+        const passwordInput = this.form.querySelector('[name="password1"]');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', (e) => {
+                this.updatePasswordStrength(e.target.value);
+            });
+        }
+    }
+
+    addFormSubmissionHandler() {
+        this.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Validate all fields
+            let allValid = true;
+            this.fields.forEach((field, fieldName) => {
+                const isValid = this.validateField(fieldName, field.input.value);
+                this.updateFieldStatus(fieldName, true);
+                if (!isValid) allValid = false;
+            });
+
+            if (allValid) {
+                this.showSuccessState();
+                this.form.submit();
+            } else {
+                this.showErrorState();
+                this.scrollToFirstError();
+            }
+        });
+    }
+
+    addInputFormatting() {
+        // Auto-format username to lowercase
+        const usernameInput = this.form.querySelector('[name="username"]');
+        if (usernameInput) {
+            usernameInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.toLowerCase();
+            });
+        }
+
+        // Trim whitespace from all inputs on blur
+        this.fields.forEach((field, fieldName) => {
+            field.input.addEventListener('blur', (e) => {
+                e.target.value = e.target.value.trim();
+            });
+        });
+    }
+
+    validateField(fieldName, value) {
+        const field = this.fields.get(fieldName);
+        if (!field) return true;
+
+        const { rules } = field;
+        let isValid = true;
+        const errors = [];
+
+        // Required validation
+        if (rules.required && (!value || value.trim() === '')) {
+            isValid = false;
+            errors.push(rules.messages.required);
+        }
+
+        // Min length validation
+        if (value && rules.minLength && value.length < rules.minLength) {
+            isValid = false;
+            errors.push(rules.messages.minLength);
+        }
+
+        // Max length validation
+        if (value && rules.maxLength && value.length > rules.maxLength) {
+            isValid = false;
+            errors.push(rules.messages.maxLength);
+        }
+
+        // Pattern validation
+        if (value && rules.pattern && !rules.pattern.test(value)) {
+            isValid = false;
+            errors.push(rules.messages.pattern);
+        }
+
+        // Match validation (for password confirmation)
+        if (value && rules.match) {
+            const matchField = this.fields.get(rules.match);
+            if (matchField && value !== matchField.input.value) {
+                isValid = false;
+                errors.push(rules.messages.match);
+            }
+        }
+
+        field.isValid = isValid;
+        field.errors = errors;
+
+        return isValid;
+    }
+
+    updateFieldStatus(fieldName, showError = false) {
+        const field = this.fields.get(fieldName);
+        if (!field) return;
+
+        const { input, isValid, errors } = field;
+        const formGroup = input.closest('.form-group');
+        if (!formGroup) return;
+
+        // Remove existing status classes
+        formGroup.classList.remove('form-group--valid', 'form-group--error');
+        
+        // Remove existing error messages
+        const existingError = formGroup.querySelector('.field-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // Remove existing success indicators
+        const existingSuccess = formGroup.querySelector('.field-success-icon');
+        if (existingSuccess) {
+            existingSuccess.remove();
+        }
+
+        if (input.value.trim() === '') {
+            // Reset to default state for empty fields
+            formGroup.classList.remove('form-group--valid', 'form-group--error');
+            return;
+        }
+
+        if (isValid) {
+            // Valid state
+            formGroup.classList.add('form-group--valid');
+            this.addSuccessIcon(formGroup);
+        } else if (showError) {
+            // Error state (only show errors after blur or submit)
+            formGroup.classList.add('form-group--error');
+            this.showFieldError(formGroup, errors);
+        }
+    }
+
+    addSuccessIcon(formGroup) {
+        const successIcon = document.createElement('div');
+        successIcon.className = 'field-success-icon';
+        successIcon.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+        `;
+        
+        const inputContainer = formGroup.querySelector('.relative');
+        if (inputContainer) {
+            // Remove existing success icon
+            const existingIcon = inputContainer.querySelector('.field-success-icon');
+            if (existingIcon) {
+                existingIcon.remove();
+            }
+            inputContainer.appendChild(successIcon);
+        }
+    }
+
+    showFieldError(formGroup, errors) {
+        if (!errors || errors.length === 0) return;
+
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'field-error-message';
+        errorMessage.innerHTML = `
+            <div class="error-content">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <div>
+                    ${errors.map(error => `<p>${error}</p>`).join('')}
+                </div>
+            </div>
+        `;
+
+        formGroup.appendChild(errorMessage);
+    }
+
+    clearFieldError(fieldName) {
+        const field = this.fields.get(fieldName);
+        if (!field) return;
+
+        const formGroup = field.input.closest('.form-group');
+        if (formGroup) {
+            formGroup.classList.remove('form-group--error');
+            const errorMessage = formGroup.querySelector('.field-error-message');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        }
+    }
+
+    updatePasswordStrength(password) {
+        const strengthIndicator = document.getElementById('password-strength') || this.createPasswordStrengthIndicator();
+        let strength = 0;
+        let feedback = '';
+
+        if (password.length === 0) {
+            strengthIndicator.style.display = 'none';
+            return;
+        }
+
+        strengthIndicator.style.display = 'block';
+
+        // Calculate strength
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[@$!%*?&]/.test(password)) strength++;
+
+        // Update strength indicator
+        const strengthBars = strengthIndicator.querySelectorAll('.strength-bar');
+        strengthBars.forEach((bar, index) => {
+            bar.className = `strength-bar ${index < strength ? `strength-${strength}` : ''}`;
+        });
+
+        // Update feedback text
+        const feedbackText = strengthIndicator.querySelector('.strength-feedback');
+        switch (strength) {
+            case 0:
+            case 1:
+                feedback = 'Very weak';
+                break;
+            case 2:
+                feedback = 'Weak';
+                break;
+            case 3:
+                feedback = 'Good';
+                break;
+            case 4:
+                feedback = 'Strong';
+                break;
+            case 5:
+                feedback = 'Very strong';
+                break;
+        }
+        feedbackText.textContent = feedback;
+    }
+
+    createPasswordStrengthIndicator() {
+        const passwordGroup = this.form.querySelector('[name="password1"]').closest('.form-group');
+        const strengthIndicator = document.createElement('div');
+        strengthIndicator.id = 'password-strength';
+        strengthIndicator.className = 'password-strength';
+        strengthIndicator.innerHTML = `
+            <div class="strength-bars">
+                <div class="strength-bar"></div>
+                <div class="strength-bar"></div>
+                <div class="strength-bar"></div>
+                <div class="strength-bar"></div>
+                <div class="strength-bar"></div>
+            </div>
+            <div class="strength-feedback"></div>
+        `;
+        strengthIndicator.style.display = 'none';
+        passwordGroup.appendChild(strengthIndicator);
+        return strengthIndicator;
+    }
+
+    showSuccessState() {
+        // Add success animation to form
+        this.form.classList.add('form--submitting');
+        
+        setTimeout(() => {
+            this.form.classList.remove('form--submitting');
+            this.form.classList.add('form--success');
+        }, 500);
+    }
+
+    showErrorState() {
+        // Shake animation for form errors
+        this.form.classList.add('form--error');
+        
+        setTimeout(() => {
+            this.form.classList.remove('form--error');
+        }, 600);
+    }
+
+    scrollToFirstError() {
+        const firstError = this.form.querySelector('.form-group--error');
+        if (firstError) {
+            firstError.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+    }
+}
+
+// Initialize the form validator when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const validator = new FormValidator('user-form');
+    
+    // Add global form reset handler
+    const cancelButton = document.querySelector('a[href*="user_list"]');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function(e) {
+            if (validator.form.querySelector('.form-group--error, .form-group--valid')) {
+                if (!confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+                    e.preventDefault();
+                }
+            }
+        });
+    }
+});
+
+// Add CSS for validation states
+const validationStyles = `
+<style>
+    /* Validation States */
+    .form-group--valid .form-input {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-group--error .form-input {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    /* Success Icon */
+    .field-success-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #10b981;
+        animation: slideInRight 0.3s ease;
+    }
+
+    /* Error Messages */
+    .field-error-message {
+        margin-top: 0.5rem;
+        animation: slideInDown 0.3s ease;
+    }
+
+    .error-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 0.5rem;
+        color: #dc2626;
+        font-size: 0.75rem;
+    }
+
+    .error-content svg {
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+
+    .error-content p {
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .error-content p + p {
+        margin-top: 0.25rem;
+    }
+
+    /* Password Strength Indicator */
+    .password-strength {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .strength-bars {
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .strength-bar {
+        flex: 1;
+        height: 0.25rem;
+        background: #e2e8f0;
+        border-radius: 0.125rem;
+        transition: all 0.3s ease;
+    }
+
+    .strength-bar.strength-1 { background: #ef4444; }
+    .strength-bar.strength-2 { background: #f59e0b; }
+    .strength-bar.strength-3 { background: #eab308; }
+    .strength-bar.strength-4 { background: #84cc16; }
+    .strength-bar.strength-5 { background: #10b981; }
+
+    .strength-feedback {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    /* Form States */
+    .form--submitting {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .form--success {
+        position: relative;
+    }
+
+    .form--success::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(45deg, transparent, rgba(16, 185, 129, 0.05), transparent);
+        animation: shimmer 2s ease;
+    }
+
+    .form--error {
+        animation: shake 0.6s ease;
+    }
+
+    /* Animations */
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(10px) translateY(-50%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) translateY(-50%);
+        }
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    /* Enhanced focus states */
+    .form-input:focus {
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    /* Loading state for submit button */
+    .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .btn-primary.loading {
+        position: relative;
+        color: transparent;
+    }
+
+    .btn-primary.loading::after {
+        content: '';
+        position: absolute;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid transparent;
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+`;
+
+// Inject styles into document
+document.head.insertAdjacentHTML('beforeend', validationStyles);
+</script>
 {% endblock %}
